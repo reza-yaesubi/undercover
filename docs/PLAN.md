@@ -146,17 +146,17 @@ At the worker boundary, log failures and persist a failed run with a readable er
 
 ### Success criteria
 
-- [ ] With a controlled stub worker, `/run` returns 202 while work is still pending, and `GET /api/health` stays responsive. A second start returns `409 {"detail":"Claim is already running"}` with only one worker scheduled; unknown claim returns 404.
-- [ ] Starting an already decided or sign-off-pending claim returns 409 rather than replacing its decision. Only a waiting claim without a decision can be retried.
-- [ ] Stub-model tests call the real API tools, confirm receipt of instructions and full claim context, and persist the fixture decisions and their exact payouts/citations. The initial API instructions, not the old hello-world constant, reach `create_agent`.
-- [ ] `CLM-T420` and `CLM-T1000` finish with recorded simulated payments; `CLM-T100001` remains approved and unpaid pending sign-off; decline/refer finish without payment.
-- [ ] A scripted agent that nevertheless invokes `/pay` for `CLM-T100001` receives the backend rejection and creates no payment. Its tool list contains no sign-off or unrestricted request operation.
-- [ ] Activity is readable before completion, ordered and tied to the correct thread. Retrying after a failed attempt creates a new thread and retains the earlier error events.
-- [ ] Simulated tool/model failures and a final message without a decision produce a failed run, a visible error and no invented decision. An agent that saves an under-limit approval but omits payment also fails visibly, retaining the decision for payment retry. A failure after decision storage does not erase that decision or create a duplicate payment.
-- [ ] Restart tests preserve completed decisions/sign-offs/payments and mark unfinished runs interrupted without invoking the model or payment operation.
-- [ ] Configuration tests assert the default model, low reasoning effort, OpenRouter URL and `MODEL_NAME` override without sending a request; API errors do not trigger a local-data or prompt fallback.
-- [ ] Add a test-only backend app factory that uses a temporary SQLite database, the six synthetic fixtures and the injected `StubModel`. Script `CLM-TBAG` to fail before a decision on its first attempt and succeed for $200.00 on retry; the other scenarios follow the table. Even if a real API key is present, the factory never constructs the live model. Use it for later browser checks, with no production stub switch or reset endpoint.
-- [ ] `npm run check:python` passes; record results, update status and commit phase 3.
+- [x] With a controlled stub worker, `/run` returns 202 while work is still pending, and `GET /api/health` stays responsive. A second start returns `409 {"detail":"Claim is already running"}` with only one worker scheduled; unknown claim returns 404.
+- [x] Starting an already decided or sign-off-pending claim returns 409 rather than replacing its decision. Only a waiting claim without a decision can be retried.
+- [x] Stub-model tests call the real API tools, confirm receipt of instructions and full claim context, and persist the fixture decisions and their exact payouts/citations. The initial API instructions, not the old hello-world constant, reach `create_agent`.
+- [x] `CLM-T420` and `CLM-T1000` finish with recorded simulated payments; `CLM-T100001` remains approved and unpaid pending sign-off; decline/refer finish without payment.
+- [x] A scripted agent that nevertheless invokes `/pay` for `CLM-T100001` receives the backend rejection and creates no payment. Its tool list contains no sign-off or unrestricted request operation.
+- [x] Activity is readable before completion, ordered and tied to the correct thread. Retrying after a failed attempt creates a new thread and retains the earlier error events.
+- [x] Simulated tool/model failures and a final message without a decision produce a failed run, a visible error and no invented decision. An agent that saves an under-limit approval but omits payment also fails visibly, retaining the decision for payment retry. A failure after decision storage does not erase that decision or create a duplicate payment.
+- [x] Restart tests preserve completed decisions/sign-offs/payments and mark unfinished runs interrupted without invoking the model or payment operation.
+- [x] Configuration tests assert the default model, low reasoning effort, OpenRouter URL and `MODEL_NAME` override without sending a request; API errors do not trigger a local-data or prompt fallback.
+- [x] Add a test-only backend app factory that uses a temporary SQLite database, the six synthetic fixtures and the injected `StubModel`. Script `CLM-TBAG` to fail before a decision on its first attempt and succeed for $200.00 on retry; the other scenarios follow the table. Even if a real API key is present, the factory never constructs the live model. Use it for later browser checks, with no production stub switch or reset endpoint.
+- [x] `npm run check:python` passes; record results, update status and commit phase 3.
 
 ## Phase 4: Queue, claim workspace and instructions
 

@@ -98,5 +98,25 @@ class PaymentResult(BaseModel):
     payment: Payment
 
 
+ActivityKind = Literal[
+    "started", "tool_call", "tool_result", "completed", "error", "sign_off", "payment"
+]
+
+
+class ActivityInput(RequestModel):
+    thread_id: Text
+    kind: ActivityKind
+    message: Text
+
+
+class Activity(ActivityInput):
+    sequence: int
+    created_at: str
+
+
+class ActivityList(BaseModel):
+    events: list[Activity]
+
+
 def cents(amount: Decimal) -> int:
     return int(amount * 100)

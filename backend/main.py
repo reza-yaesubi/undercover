@@ -14,12 +14,16 @@ from backend.models import (
     Instructions,
     PolicyWording,
 )
+from backend.run_routes import add_run_routes
+from backend.runner import AgentRunner, live_runner, recover_interrupted_runs
 from backend.seed import SeedData, load_seed
 from backend.workflow_routes import add_workflow_routes
 
 
 def create_app(
-    database: Database | None = None, seed: SeedData | None = None
+    database: Database | None = None,
+    seed: SeedData | None = None,
+    runner: AgentRunner = live_runner,
 ) -> FastAPI:
     """Create the pilot API with injectable storage for isolated tests."""
     database = database or Database(DEFAULT_DATABASE)
@@ -27,6 +31,7 @@ def create_app(
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         database.initialize(seed or load_seed())
+        recover_interrupted_runs(database)
         yield
 
     app = FastAPI(title="UnderCover", lifespan=lifespan)
@@ -62,6 +67,7 @@ def create_app(
         return reads.list_handlers(database)
 
     add_workflow_routes(app, database)
+    add_run_routes(app, database, runner)
     return app
 
 

@@ -12,7 +12,10 @@ The pilot is being implemented in the order in [PLAN.md](PLAN.md).
   simulated payment operation. Money is stored in integer cents. SQLite write
   transactions prevent duplicate payments, and partial amounts cannot bypass the
   approval limit.
-- The agent and dashboard are still the hello-world skeleton pending later phases.
+- Phase 3: API-only LangChain agent, background execution, ordered live activity,
+  explicit run failures/retries and restart interruption handling. The test-only
+  app supplies six synthetic cases and scripted models, including a retry scenario.
+- The dashboard is still the hello-world skeleton pending phases 4-5.
 
 ## Run
 
@@ -20,6 +23,9 @@ Use Python 3.12 with uv and Node 26. The initial setup is `uv sync` and
 `npm install`; `npm run dev` starts the API on port 8000 and dashboard on port 5173.
 The backend creates the ignored `undercover.sqlite3` at the repository root.
 Read operations do not require a model key.
+Live agent runs use `OPENROUTER_API_KEY` from `.env`. The default is
+`openai/gpt-6-luna` with low reasoning effort; `MODEL_NAME` selects an alternative.
+The agent does not resume automatically after a backend restart.
 
 ## Verification
 
@@ -30,5 +36,10 @@ Read operations do not require a model key.
   the plan's exact monetary scenarios; named synthetic agent fixtures follow in
   phase 3. Verified $1,000.00 vs $1,000.01, sign-off before payment, 100001 stored
   cents, invalid states/inputs and simultaneous duplicate-payment attempts.
+- Phase 3: `npm run check:python` passed: 50 tests, 99.33% Python coverage,
+  Ruff and Pyright clean. Agent and runner Pylance syntax checks passed.
+- Real HTTP check against the isolated stub app: `/run` returned 202 in 0.038s
+  while the run was still active and health remained responsive; it completed
+  with a $420.00 simulated payment and 13 ordered events. The helper was stopped.
 - Tests use temporary databases; no evaluation files were opened and no external
   model or payment request was made. Browser checks are scheduled for phases 4-6.

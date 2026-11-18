@@ -4,6 +4,7 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import closing, contextmanager
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import HTTPException
@@ -54,6 +55,14 @@ CREATE TABLE IF NOT EXISTS payments (
     claim_id TEXT PRIMARY KEY REFERENCES decisions(claim_id),
     amount_cents INTEGER NOT NULL CHECK (amount_cents > 0),
     paid_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS activity (
+    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    claim_id TEXT NOT NULL REFERENCES claims(claim_id),
+    thread_id TEXT NOT NULL REFERENCES runs(thread_id),
+    kind TEXT NOT NULL,
+    message TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 """
 
@@ -138,3 +147,7 @@ def record[T: BaseModel](
     if row is None:
         raise HTTPException(status_code=404, detail=f"{kind.capitalize()} not found")
     return model.model_validate_json(row["body"])
+
+
+def timestamp() -> str:
+    return datetime.now(UTC).isoformat()

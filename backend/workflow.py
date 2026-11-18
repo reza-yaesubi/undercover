@@ -2,15 +2,16 @@
 
 import re
 import sqlite3
-from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import uuid4
 
 from fastapi import HTTPException
 
-from backend.database import Database, claim_row, record
+from backend.activity import append_event
+from backend.database import Database, claim_row, record, timestamp
 from backend.models import Company, Handler, PolicyWording
 from backend.workflow_models import (
+    ActivityInput,
     Decision,
     DecisionInput,
     DecisionResult,
@@ -24,10 +25,6 @@ from backend.workflow_models import (
     SignOffResult,
     cents,
 )
-
-
-def timestamp() -> str:
-    return datetime.now(UTC).isoformat()
 
 
 def latest_run(connection: sqlite3.Connection, claim_id: str) -> Run | None:
@@ -81,6 +78,13 @@ def begin_run(database: Database, claim_id: str) -> RunStart:
         )
         connection.execute(
             "UPDATE claims SET status = 'in_progress' WHERE claim_id = ?", (claim_id,)
+        )
+        append_event(
+            connection,
+            claim_id,
+            ActivityInput(
+                thread_id=thread_id, kind="started", message="Agent run started."
+            ),
         )
     return RunStart(claim_id=claim_id, thread_id=thread_id)
 
@@ -145,6 +149,18 @@ def sign_off(database: Database, claim_id: str, handler_id: str) -> SignOffResul
         connection.execute(
             "UPDATE claims SET status = 'decided' WHERE claim_id = ?", (claim_id,)
         )
+        decision = stored_decision(connection, claim_id)
+        if decision is None:
+            raise HTTPException(status_code=409, detail="No decision to sign off")
+        append_event(
+            connection,
+            claim_id,
+            ActivityInput(
+                thread_id=decision.thread_id,
+                kind="sign_off",
+                message=f"Handler {handler_id} signed off the approval.",
+            ),
+        )
     return SignOffResult(claim_id=claim_id, sign_off=approval)
 
 
@@ -175,5 +191,14 @@ def pay(database: Database, claim_id: str, request: PaymentInput) -> PaymentResu
         connection.execute(
             "INSERT INTO payments VALUES (?, ?, ?)",
             (claim_id, cents(payment.amount), payment.paid_at),
+        )
+        append_event(
+            connection,
+            claim_id,
+            ActivityInput(
+                thread_id=decision.thread_id,
+                kind="payment",
+                message=f"Simulated payment recorded: ${payment.amount:,.2f}.",
+            ),
         )
     return PaymentResult(claim_id=claim_id, payment=payment)
