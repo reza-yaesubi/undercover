@@ -18,7 +18,10 @@ The pilot is being implemented in the order in [PLAN.md](PLAN.md).
 - Phase 4: responsive queue, complete claim evidence, decision/payment display,
   operational activity and read-only instructions. Safe text rendering, explicit
   read failures/retry and stale-selection protection are covered by component tests.
-  Agent and payment controls follow in phase 5.
+- Phase 5: run/retry, non-overlapping one-second polling, eligible handler
+  selection, separate sign-off/payment requests, payment-only recovery and
+  disabled conflicting controls. Polling remains active after the decision
+  until the workspace closes, including final activity and payment updates.
 
 ## Run
 
@@ -58,3 +61,16 @@ The agent does not resume automatically after a backend restart.
   focus works. No unexpected console/network errors (StrictMode aborts expected).
   Four screenshots: `.playwright-mcp/pilot/phase4-{desktop,mobile}-{light,dark}.png`.
   Development helper servers were stopped after these read-only checks.
+- Phase 5: `npm run check:ts` passed 20 tests; 99.21% statements, 93.05%
+  branches, 100% functions/lines. `npm run e2e` passed 7 tests against the
+  isolated stub app; both servers have `reuseExistingServer:false`.
+- B4-B6 passed in the integrated Playwright browser: visible initial progress,
+  13 ordered events for the $420 approval, $1,000 payment without sign-off,
+  $1,000.01 blocked with 409 until HND-01 signed, persisted payment after reload,
+  and distinct zero-payout decline/referral with no payment controls.
+- B7 passed with a fresh stub instance: baggage first-attempt failure then
+  explicit $200 retry; intercepted 503 payment retained sign-off and recovered
+  through payment-only retry; intercepted queue read displayed its connection
+  error. Expected injected 409/503 responses, request cancellation and deliberate
+  server-restart connection failures were observed, not hidden. All helper
+  servers stopped. No real model/payment calls.

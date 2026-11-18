@@ -442,6 +442,18 @@ details > dl {
   background: var(--panel);
   color: var(--ink);
 }
+.action-panel:empty {
+  display: none;
+}
+.action-panel select {
+  display: block;
+  max-width: 100%;
+  margin: 8px 0 16px;
+  padding: 10px;
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--soft);
+}
 footer {
   color: var(--muted);
   font-size: 0.75rem;

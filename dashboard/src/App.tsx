@@ -16,12 +16,14 @@ import "./styles.css";
 export function App() {
   const [view, setView] = useState<"claims" | "instructions">("claims");
   const [selected, setSelected] = useState<string | null>(null);
-  const queue = useResource<QueueData>("/api/claims");
+  const queue = useResource<QueueData>("/api/claims", view === "claims");
   const detail = useResource<ClaimDetail>(
     selected === null ? null : claimPath(selected),
+    view === "claims",
   );
   const activity = useResource<ActivityList>(
     selected === null ? null : `${claimPath(selected)}/activity`,
+    view === "claims",
   );
   const instructions = useResource<Instructions>(
     view === "instructions" ? "/api/agent/instructions" : null,
@@ -130,6 +132,11 @@ export function App() {
               selected={selected}
               detail={detail}
               activity={activity}
+              onRefresh={() => {
+                queue.reload();
+                detail.reload();
+                activity.reload();
+              }}
             />
           </div>
         )}

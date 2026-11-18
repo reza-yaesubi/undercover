@@ -15,7 +15,7 @@ export interface Resource<T> {
   reload: () => void;
 }
 
-export function useResource<T>(path: string | null): Resource<T> {
+export function useResource<T>(path: string | null, poll = false): Resource<T> {
   const [version, setVersion] = useState(0);
   const [snapshot, setSnapshot] = useState<Snapshot<T> | null>(null);
   const key = `${path ?? ""}:${String(version)}`;
@@ -25,27 +25,39 @@ export function useResource<T>(path: string | null): Resource<T> {
 
   useEffect(() => {
     if (path === null) return;
+    const requestPath = path;
     const controller = new AbortController();
-    void request<T>(path, { signal: controller.signal })
-      .then((data) => {
-        if (!controller.signal.aborted) {
-          setSnapshot({ path, key, data, error: null });
-        }
-      })
-      .catch((error: unknown) => {
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    async function load() {
+      try {
+        const data = await request<T>(requestPath, {
+          signal: controller.signal,
+        });
+        if (!controller.signal.aborted)
+          setSnapshot({ path: requestPath, key, data, error: null });
+      } catch (error: unknown) {
         if (!controller.signal.aborted) {
           setSnapshot((previous) => ({
-            path,
+            path: requestPath,
             key,
-            data: previous?.path === path ? previous.data : null,
+            data: previous?.path === requestPath ? previous.data : null,
             error: errorMessage(error),
           }));
         }
-      });
+      } finally {
+        if (poll && !controller.signal.aborted) {
+          timer = setTimeout(() => {
+            void load();
+          }, 1000);
+        }
+      }
+    }
+    void load();
     return () => {
       controller.abort();
+      clearTimeout(timer);
     };
-  }, [path, key]);
+  }, [path, key, poll]);
 
   return {
     data: path !== null && snapshot?.path === path ? snapshot.data : null,

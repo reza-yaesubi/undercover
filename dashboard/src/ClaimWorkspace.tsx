@@ -1,5 +1,6 @@
 import { ActivityLog } from "./ActivityLog";
 import { ClaimDetails } from "./ClaimDetails";
+import { ClaimActions } from "./ClaimActions";
 import { DecisionCard } from "./DecisionCard";
 import { ErrorNotice } from "./ErrorNotice";
 import type { ActivityList, ClaimDetail } from "./types";
@@ -9,10 +10,12 @@ export function ClaimWorkspace({
   selected,
   detail,
   activity,
+  onRefresh,
 }: {
   readonly selected: string | null;
   readonly detail: Resource<ClaimDetail>;
   readonly activity: Resource<ActivityList>;
+  readonly onRefresh: () => void;
 }) {
   return (
     <div className="claim-workspace">
@@ -33,6 +36,12 @@ export function ClaimWorkspace({
       {detail.data && (
         <>
           <DecisionCard detail={detail.data} />
+          <ClaimActions
+            key={detail.data.claim.claim_id}
+            detail={detail.data}
+            refreshing={detail.loading || Boolean(detail.error)}
+            onRefresh={onRefresh}
+          />
           <ClaimDetails detail={detail.data} />
           <section className="panel">
             {activity.loading && <p role="status">Loading activity...</p>}
