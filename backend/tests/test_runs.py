@@ -5,7 +5,7 @@ from threading import Event
 import pytest
 from fastapi.testclient import TestClient
 
-from backend import workflow
+from backend import activity, reads, workflow
 from backend.database import Database
 from backend.main import create_app
 from backend.runner import RunFailure, execute_run, fail_run
@@ -118,9 +118,14 @@ def test_completed_runs_and_restart_persistence(database, claim_id):
     if claim_id == "CLM-T100001":
         workflow.sign_off(database, claim_id, "HND-01")
         workflow.pay(database, claim_id, PaymentInput(amount=Decimal("1000.01")))
+    saved_detail = reads.get_claim(database, claim_id).model_dump(mode="json")
+    saved_activity = activity.list_activity(database, claim_id).model_dump(mode="json")
     interrupted = workflow.begin_run(database, "CLM-TBAG")
-    with TestClient(create_app(database, seed)) as client:
+    reopened = Database(database.path)
+    with TestClient(create_app(reopened, seed)) as client:
         detail = client.get(f"/api/claims/{claim_id}").json()
+        assert detail == saved_detail
+        assert client.get(f"/api/claims/{claim_id}/activity").json() == saved_activity
         assert detail["run"]["status"] == "completed"
         assert detail["decision"]["outcome"] == draft_for(claim_id).outcome
         if claim_id in {"CLM-T420", "CLM-T100001"}:

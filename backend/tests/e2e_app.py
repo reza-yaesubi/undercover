@@ -16,7 +16,9 @@ from backend.tests.pilot_data import pilot_seed
 
 
 def create_app() -> FastAPI:
-    storage = TemporaryDirectory(prefix="undercover-e2e-")
+    cache = Path(".pytest_cache")
+    cache.mkdir(exist_ok=True)
+    storage = TemporaryDirectory(prefix="undercover-e2e-", dir=cache)
     database = Database(Path(storage.name) / "pilot.sqlite3")
     attempts: dict[str, int] = {}
 

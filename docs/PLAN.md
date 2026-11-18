@@ -1,6 +1,6 @@
 # Pilot build plan
 
-**Status: implementation in progress.** Checked criteria have been verified; remaining criteria are not yet reported as complete.
+**Status: pilot implemented and verified.** All criteria below are checked against tests and browser evidence recorded in STATUS.md, including the final post-phase check.
 
 This plan follows [SPEC.md](SPEC.md), [TECH_STACK.md](TECH_STACK.md), [CODE_STANDARDS.md](CODE_STANDARDS.md), [PROCESS.md](PROCESS.md) and [BRAND.md](BRAND.md). The starting point is the health-only backend, agent and dashboard described in [STATUS.md](STATUS.md). Build the six phases in order only after implementation is requested.
 
@@ -214,10 +214,10 @@ Give stateful end-to-end scenarios separate fixture claims or fresh test-server 
 
 ### Success criteria
 
-- [ ] Automated Playwright coverage reproduces the core B1-B7 behaviors where applicable: read-only navigation, live progress, ordinary payout, threshold/sign-off, decline/referral and explicit failures. Seed-count assertions use the business seed fixture; six-claim workflow fixtures are not mistaken for the 25-claim production queue.
-- [ ] Backend tests verify persisted decisions, activity, sign-offs and payments after reopening the same database; new test runs use clean temporary storage, not automatic deletion of the user's pilot database.
-- [ ] Contract tests inspect OpenAPI for unique operation IDs and required inputs on every new operation. Agent tests confirm no file access to business data and no tool that can sign off; no automated test makes an external model/payment request.
-- [ ] Repeat the completed browser walkthroughs against the final build, record actual observations and resolve unexpected console/network errors. If the required MCP browser capability is unavailable, report that remaining verification explicitly.
-- [ ] [STATUS.md](STATUS.md) documents setup/run/check commands, local database location, required environment variable names without secret values, model override, the four queue states, sign-off and simulated payments, failure/retry behavior, and non-resumable in-process execution. Clearly state that model accuracy versus handler decisions has not been measured.
-- [ ] Run `npm run check` with all configured thresholds intact, record the actual results, tick verified criteria, update status and commit phase 6 with hooks enabled.
-- [ ] After the last phase, run `npm run check` again as required by the process and report its result plus any remaining limitations. Do not push, provision resources, open evaluation files or add later-day features.
+- [x] Automated Playwright coverage reproduces the core B1-B7 behaviors where applicable: read-only navigation, live progress, ordinary payout, threshold/sign-off, decline/referral and explicit failures. Seed-count assertions use the business seed fixture; six-claim workflow fixtures are not mistaken for the 25-claim production queue.
+- [x] Backend tests verify persisted decisions, activity, sign-offs and payments after reopening the same database; new test runs use clean temporary storage, not automatic deletion of the user's pilot database.
+- [x] Contract tests inspect OpenAPI for unique operation IDs and required inputs on every new operation. Agent tests confirm no file access to business data and no tool that can sign off; no automated test makes an external model/payment request.
+- [x] Repeat the completed browser walkthroughs against the final build, record actual observations and resolve unexpected console/network errors. If the required MCP browser capability is unavailable, report that remaining verification explicitly.
+- [x] [STATUS.md](STATUS.md) documents setup/run/check commands, local database location, required environment variable names without secret values, model override, the four queue states, sign-off and simulated payments, failure/retry behavior, and non-resumable in-process execution. Clearly state that model accuracy versus handler decisions has not been measured.
+- [x] Run `npm run check` with all configured thresholds intact, record the actual results, tick verified criteria, update status and commit phase 6 with hooks enabled.
+- [x] After the last phase, run `npm run check` again as required by the process and report its result plus any remaining limitations. Do not push, provision resources, open evaluation files or add later-day features.
