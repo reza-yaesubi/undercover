@@ -15,7 +15,10 @@ The pilot is being implemented in the order in [PLAN.md](PLAN.md).
 - Phase 3: API-only LangChain agent, background execution, ordered live activity,
   explicit run failures/retries and restart interruption handling. The test-only
   app supplies six synthetic cases and scripted models, including a retry scenario.
-- The dashboard is still the hello-world skeleton pending phases 4-5.
+- Phase 4: responsive queue, complete claim evidence, decision/payment display,
+  operational activity and read-only instructions. Safe text rendering, explicit
+  read failures/retry and stale-selection protection are covered by component tests.
+  Agent and payment controls follow in phase 5.
 
 ## Run
 
@@ -43,3 +46,15 @@ The agent does not resume automatically after a backend restart.
   with a $420.00 simulated payment and 13 ordered events. The helper was stopped.
 - Tests use temporary databases; no evaluation files were opened and no external
   model or payment request was made. Browser checks are scheduled for phases 4-6.
+- Phase 4: TypeScript format/lint/type checks passed; 13 component tests,
+  100% statement/line/function coverage (branch coverage above 90%).
+- B1/B2: integrated Playwright browser verified 25 waiting claims, CLM-1001's
+  $420.00, Premium plan, full story, three items, four document texts, CLM-0412
+  history, exact API instructions and retained selection. No live agent was run.
+- B3: integrated-browser screenshot inspected; its viewport emulation reset
+  unexpectedly, so local Playwright Chromium verified exact 1440x900 and 390x844
+  light/dark layouts. No horizontal overflow with all documents expanded;
+  Instrument Sans/JetBrains Mono and white/black panels verified; keyboard queue
+  focus works. No unexpected console/network errors (StrictMode aborts expected).
+  Four screenshots: `.playwright-mcp/pilot/phase4-{desktop,mobile}-{light,dark}.png`.
+  Development helper servers were stopped after these read-only checks.

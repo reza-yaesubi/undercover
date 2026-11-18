@@ -168,12 +168,12 @@ Apply Instrument Sans to body/headings, Instrument Serif only if an accent is us
 
 ### Success criteria
 
-- [ ] Component tests render every queue state as "Waiting", "In progress", "Waiting for sign-off" or "Decided"; selecting a row fetches and displays the corresponding full detail without mixing in a previous selection's response.
-- [ ] Tests cover all fixture outcomes, a two-sentence reason rendered as a paragraph, policy sections, the calculation and formatted amounts such as `$1,000.01`. Referrals are clearly distinguished from sign-off-pending approvals.
-- [ ] The instructions view displays the backend response as non-editable text. Neither instructions nor raw document text can execute markup or scripts.
-- [ ] Loading, an empty test queue, missing claims and failed requests have explicit UI states. A failed request is not displayed as an empty queue or a successful action; provide a visible retry.
-- [ ] Complete browser checks B1-B3 below with Playwright MCP, including screenshots and console/network-error inspection.
-- [ ] `npm run check:ts` passes. Update the obsolete greeting-based end-to-end assertion to the real claims UI while retaining an API health assertion; record results, update status and commit phase 4.
+- [x] Component tests render every queue state as "Waiting", "In progress", "Waiting for sign-off" or "Decided"; selecting a row fetches and displays the corresponding full detail without mixing in a previous selection's response.
+- [x] Tests cover all fixture outcomes, a two-sentence reason rendered as a paragraph, policy sections, the calculation and formatted amounts such as `$1,000.01`. Referrals are clearly distinguished from sign-off-pending approvals.
+- [x] The instructions view displays the backend response as non-editable text. Neither instructions nor raw document text can execute markup or scripts.
+- [x] Loading, an empty test queue, missing claims and failed requests have explicit UI states. A failed request is not displayed as an empty queue or a successful action; provide a visible retry.
+- [x] Complete browser checks B1-B3 below with Playwright MCP, including screenshots and console/network-error inspection. Exact viewport checks used local Playwright because the integrated browser reset viewport emulation; see STATUS.
+- [x] `npm run check:ts` passes. Update the obsolete greeting-based end-to-end assertion to the real claims UI while retaining an API health assertion; record results, update status and commit phase 4.
 
 ## Phase 5: Start, progress, sign-off and payment interactions
 
@@ -198,9 +198,9 @@ These are Playwright MCP checks during implementation, in addition to automated 
 
 For B1-B3, run `npm run dev`, confirm the health URL responds, and open `http://localhost:5173/`. Do not start the live agent. For B4-B7, stop only the development processes started for these checks, then start the planned test app with `uv run -m uvicorn backend.tests.e2e_app:create_app --factory --port 8000` and the dashboard with `npx vite dashboard --port 5173 --strictPort`. The test app has a fresh temporary database and scripted scenarios. If ports are already occupied by other processes, report that instead of killing or reusing them. Stop check-only servers afterward.
 
-- [ ] **B1 - Seeded queue and full detail:** At `/`, see 25 claims and all initially labeled "Waiting" on a fresh pilot database. Click `CLM-1001`; verify `$420.00` claimed, Premium policy, the story, three expense items, four document texts and the `CLM-0412` history entry.
-- [ ] **B2 - Instructions:** Open "Agent instructions"; compare its text to `GET /api/agent/instructions`. Verify no editable field or save control, then return to the selected claim without losing the selection.
-- [ ] **B3 - Brand and usable layout:** Inspect at 1440x900 and 390x844 in light and dark system preferences. Verify branded fonts/surfaces, readable status text and keyboard-focusable queue/controls; long stories/documents and money labels do not clip or force page-wide horizontal scrolling. Capture both layouts and check for unexpected console errors.
+- [x] **B1 - Seeded queue and full detail:** At `/`, see 25 claims and all initially labeled "Waiting" on a fresh pilot database. Click `CLM-1001`; verify `$420.00` claimed, Premium policy, the story, three expense items, four document texts and the `CLM-0412` history entry.
+- [x] **B2 - Instructions:** Open "Agent instructions"; compare its text to `GET /api/agent/instructions`. Verify no editable field or save control, then return to the selected claim without losing the selection.
+- [x] **B3 - Brand and usable layout:** Inspect at 1440x900 and 390x844 in light and dark system preferences. Verify branded fonts/surfaces, readable status text and keyboard-focusable queue/controls; long stories/documents and money labels do not clip or force page-wide horizontal scrolling. Capture both layouts and check for unexpected console errors.
 - [ ] **B4 - Visible progress and ordinary payment:** In the stub app, run `CLM-T420`. The stub pauses between tool steps long enough to observe "In progress" and an initial activity entry before completion. Within the next polling update, verify "Approved", `$420.00`, the reason/sections, ordered activity and "Simulated payment recorded" without reloading. Use awaited assertions, not fixed browser sleeps.
 - [ ] **B5 - Threshold and sign-off:** Run `CLM-T1000` and confirm a simulated payment without sign-off. Run `CLM-T100001`; confirm "Waiting for sign-off" and no payment. A direct Playwright request to `POST /api/claims/CLM-T100001/pay` with `{"amount":"1000.01"}` returns 409. Select `HND-01`, click "Sign off and record payment", then verify "Decided", `$1,000.01`, recorded handler and one simulated payment. Reload and verify persistence.
 - [ ] **B6 - Decline and referral:** Run `CLM-TDECLINE` and `CLM-TREFER`. Each ends "Decided" with its distinct outcome, reason and relevant section, zero payout and no payment/sign-off controls. The referral explains the missing records without sending a message.
