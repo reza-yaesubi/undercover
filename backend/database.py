@@ -28,6 +28,33 @@ CREATE TABLE IF NOT EXISTS claims (
         status IN ('waiting', 'in_progress', 'waiting_for_sign_off', 'decided')
     )
 );
+CREATE TABLE IF NOT EXISTS runs (
+    run_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    thread_id TEXT UNIQUE NOT NULL,
+    claim_id TEXT NOT NULL REFERENCES claims(claim_id),
+    status TEXT NOT NULL CHECK (status IN ('running', 'completed', 'failed')),
+    started_at TEXT NOT NULL,
+    finished_at TEXT,
+    error TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS one_active_run
+    ON runs(claim_id) WHERE status = 'running';
+CREATE TABLE IF NOT EXISTS decisions (
+    claim_id TEXT PRIMARY KEY REFERENCES claims(claim_id),
+    thread_id TEXT NOT NULL REFERENCES runs(thread_id),
+    body TEXT NOT NULL,
+    payout_cents INTEGER NOT NULL CHECK (payout_cents >= 0)
+);
+CREATE TABLE IF NOT EXISTS sign_offs (
+    claim_id TEXT PRIMARY KEY REFERENCES decisions(claim_id),
+    handler_id TEXT NOT NULL,
+    signed_off_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS payments (
+    claim_id TEXT PRIMARY KEY REFERENCES decisions(claim_id),
+    amount_cents INTEGER NOT NULL CHECK (amount_cents > 0),
+    paid_at TEXT NOT NULL
+);
 """
 
 
@@ -42,6 +69,12 @@ class Database:
             connection.execute("PRAGMA foreign_keys = ON")
             with connection:
                 yield connection
+
+    @contextmanager
+    def write(self) -> Iterator[sqlite3.Connection]:
+        with self.connect() as connection:
+            connection.execute("BEGIN IMMEDIATE")
+            yield connection
 
     def initialize(self, seed: SeedData) -> None:
         """Create missing tables and insert seed records without resetting work."""

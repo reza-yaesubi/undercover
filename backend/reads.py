@@ -1,5 +1,6 @@
 """Read the claim workspace from the backend's records."""
 
+from backend import workflow
 from backend.database import Database, claim_row, record
 from backend.instructions import agent_instructions
 from backend.models import (
@@ -47,6 +48,10 @@ def get_claim(database: Database, claim_id: str) -> ClaimDetail:
         policy = record(connection, "policy", claim.policy_id, Policy)
         customer = record(connection, "customer", claim.customer_id, Customer)
         plan = record(connection, "plan", policy.plan, Plan)
+        decision = workflow.stored_decision(connection, claim_id)
+        sign_off = workflow.stored_sign_off(connection, claim_id)
+        payment = workflow.stored_payment(connection, claim_id)
+        run = workflow.latest_run(connection, claim_id)
     return ClaimDetail(
         claim=claim,
         policy=policy,
@@ -58,6 +63,10 @@ def get_claim(database: Database, claim_id: str) -> ClaimDetail:
                 ]
             }
         ),
+        decision=decision,
+        sign_off=sign_off,
+        payment=payment,
+        run=run,
     )
 
 

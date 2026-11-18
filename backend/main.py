@@ -15,6 +15,7 @@ from backend.models import (
     PolicyWording,
 )
 from backend.seed import SeedData, load_seed
+from backend.workflow_routes import add_workflow_routes
 
 
 def create_app(
@@ -60,6 +61,7 @@ def create_app(
         """List the handlers available for sign-off."""
         return reads.list_handlers(database)
 
+    add_workflow_routes(app, database)
     return app
 
 

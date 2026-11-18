@@ -115,14 +115,14 @@ Unknown records return 404, malformed bodies return FastAPI's 422 validation res
 
 ### Success criteria
 
-- [ ] Tests begin a run using the backend state service, submit the example decision and assert the stored fields, `201`, and `decided`. A missing field, invalid outcome, invalid section or reason array outside two to three entries returns 422 without creating a decision.
-- [ ] Decision writes require the current running thread and no existing decision. A mismatched thread or second decision returns 409 and preserves the original record.
-- [ ] With `CLM-T1000` approved, `POST /pay {"amount":"1000.00"}` returns 201 without sign-off. With `CLM-T100001` approved, the corresponding call returns `409 {"detail":"Handler sign-off required"}` and leaves the payment table unchanged.
-- [ ] For `CLM-T100001`, sign off with `HND-01`, then call `/pay` with `"1000.01"`: assert 200 then 201, the recorded handler/time, `simulated:true` and exactly 100001 stored cents.
-- [ ] A direct attempt to pay only `"1000.00"` of the `"1000.01"` approval returns 409 for an amount mismatch. Splitting payments cannot evade sign-off; the guard checks the stored payout and company limit, not only the supplied amount.
-- [ ] Paying a waiting, declined, referred or zero-payout claim returns 409; a repeated successful payment returns `409 {"detail":"Claim already paid"}`. Concurrent payment attempts create at most one payment record. Negative, non-finite and sub-cent requests return 422.
-- [ ] Unknown/ineligible handlers cannot sign off, and sign-off is rejected for states other than `waiting_for_sign_off`. No payment code calls an external provider.
-- [ ] `npm run check:python` passes; record results, update status and commit phase 2.
+- [x] Tests begin a run using the backend state service, submit the example decision and assert the stored fields, `201`, and `decided`. A missing field, invalid outcome, invalid section or reason array outside two to three entries returns 422 without creating a decision.
+- [x] Decision writes require the current running thread and no existing decision. A mismatched thread or second decision returns 409 and preserves the original record.
+- [x] With `CLM-T1000` approved, `POST /pay {"amount":"1000.00"}` returns 201 without sign-off. With `CLM-T100001` approved, the corresponding call returns `409 {"detail":"Handler sign-off required"}` and leaves the payment table unchanged.
+- [x] For `CLM-T100001`, sign off with `HND-01`, then call `/pay` with `"1000.01"`: assert 200 then 201, the recorded handler/time, `simulated:true` and exactly 100001 stored cents.
+- [x] A direct attempt to pay only `"1000.00"` of the `"1000.01"` approval returns 409 for an amount mismatch. Splitting payments cannot evade sign-off; the guard checks the stored payout and company limit, not only the supplied amount.
+- [x] Paying a waiting, declined, referred or zero-payout claim returns 409; a repeated successful payment returns `409 {"detail":"Claim already paid"}`. Concurrent payment attempts create at most one payment record. Negative, non-finite and sub-cent requests return 422.
+- [x] Unknown/ineligible handlers cannot sign off, and sign-off is rejected for states other than `waiting_for_sign_off`. No payment code calls an external provider.
+- [x] `npm run check:python` passes; record results, update status and commit phase 2.
 
 ## Phase 3: Agent execution and live activity
 

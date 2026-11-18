@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-QueueStatus = Literal["waiting", "in_progress", "waiting_for_sign_off", "decided"]
+from backend.workflow_models import Decision, Payment, QueueStatus, Run, SignOff
 
 
 class ClaimItem(BaseModel):
@@ -160,10 +160,10 @@ class ClaimDetail(BaseModel):
     policy: Policy
     customer: Customer
     plan: Plan
-    decision: None = None
-    sign_off: None = None
-    payment: None = None
-    run: None = None
+    decision: Decision | None = None
+    sign_off: SignOff | None = None
+    payment: Payment | None = None
+    run: Run | None = None
 
 
 class HandlerList(BaseModel):
